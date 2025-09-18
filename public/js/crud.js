@@ -129,10 +129,23 @@ class CrudManager {
             this.modal.hide();
             this.tabla.ajax.reload(null, false);
 
-            const message = this.isEditing
-                ? "Registro actualizado correctamente"
-                : "Registro creado correctamente";
-            this.showNotification("success", response.message || message);
+            const isSuccess =
+                response.success === true || response.status === true;
+            if (isSuccess) {
+                const message = this.isEditing
+                    ? response.message || "Registro actualizado correctamente"
+                    : response.message || "Registro creado correctamente";
+                this.showNotification("success", message);
+
+                if (this.afterSuccess) {
+                    await this.afterSuccess(response, this.isEditing);
+                }
+            } else {
+                this.showNotification(
+                    "error",
+                    response.message || "Error en la operación"
+                );
+            }
         } catch (error) {
             console.error("Error en submit:", error);
             this.handleFormErrors(error);
@@ -280,6 +293,16 @@ class CrudManager {
                 const feedback = input?.nextElementSibling;
 
                 if (
+                    !input ||
+                    !feedback?.classList.contains("invalid-feedback")
+                ) {
+                    input = document.querySelector(
+                        `[data-error-field="${field}"]`
+                    );
+                    feedback = input?.nextElementSibling;
+                }
+
+                if (
                     input &&
                     feedback &&
                     feedback.classList.contains("invalid-feedback")
@@ -370,6 +393,7 @@ class CrudManager {
         getId = (item) => item.id || item.codigo || "",
         minLength = 3,
         delay = 300,
+        onSelect,
     }) {
         const input = document.getElementById(inputId);
         const hidden = document.getElementById(hiddenId);
@@ -409,6 +433,9 @@ class CrudManager {
                     input.value = template(item);
                     hidden.value = getId(item);
                     clearSuggestions();
+                    if (typeof onSelect === "function") {
+                        onSelect(item);
+                    }
                 };
 
                 list.appendChild(li);
@@ -457,6 +484,9 @@ class CrudManager {
                     input.value = template(suggestions[activeIndex]);
                     hidden.value = getId(suggestions[activeIndex]);
                     clearSuggestions();
+                    if (typeof onSelect === "function") {
+                        onSelect(item);
+                    }
                 }
             } else if (e.key === "Escape") {
                 clearSuggestions();

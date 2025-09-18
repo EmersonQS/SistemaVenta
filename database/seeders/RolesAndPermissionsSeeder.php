@@ -27,6 +27,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'comprobante_tipos',
             'users',
             'roles_permisos',
+            'compras',
+            'proveedores'
         ];
 
         $actions = ['list', 'create', 'edit', 'delete'];

@@ -49,10 +49,17 @@
                 <div class="invalid-feedback"></div>
               </div>
             </div>
-            <div class="col-lg-6">
+            <div class="col-lg-3">
               <div class="form-group mb-3">
                 <label for="precio_unitario" class="form-label">Precio Unitario<span class="text-danger">*</span></label>
                 <input type="text" id="precio_unitario" name="precio_unitario" class="form-control" required>
+                <div class="invalid-feedback"></div>
+              </div>
+            </div>
+            <div class="col-lg-3">
+              <div class="form-group mb-3">
+                <label for="stock" class="form-label">Stock<span class="text-danger">*</span></label>
+                <input type="text" id="stock" name="stock" class="form-control" required>
                 <div class="invalid-feedback"></div>
               </div>
             </div>
