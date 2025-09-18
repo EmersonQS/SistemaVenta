@@ -11,6 +11,15 @@ class AfectacionTipo extends Model
     public $incrementing = false;
     protected $keyType = 'string';
 
+
+    protected $fillable = [
+        'codigo',
+        'nombre',
+        'descripcion',
+        'letra',
+        'porcentaje'
+    ];
+
     public $timestamps = false;
 
     public function productos()

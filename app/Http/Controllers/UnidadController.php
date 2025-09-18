@@ -4,11 +4,20 @@ namespace App\Http\Controllers;
 
 use App\Models\Unidad;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Validation\Rule;
 
 class UnidadController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('can:unidades_list')->only(['index']);
+        $this->middleware('can:unidades_create')->only(['store']);
+        $this->middleware('can:unidades_edit')->only(['show', 'update']);
+        $this->middleware('can:unidades_delete')->only(['destroy']);
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -19,9 +28,14 @@ class UnidadController extends Controller
 
             return DataTables::of($data)
                 ->addColumn('action', function ($row) {
-                    $editButton = view('components.button-edit', ['id' => $row->codigo])->render();
-                    $deleteButton = view('components.button-delete', ['id' => $row->codigo])->render();
-                    // Combinar ambos botones en una cadena y devolverla
+                    $editButton = Gate::allows('unidades_edit')
+                        ? view('components.button-edit', ['id' => $row->codigo])->render()
+                        : '';
+
+                    $deleteButton = Gate::allows('unidades_delete')
+                        ? view('components.button-delete', ['id' => $row->codigo])->render()
+                        : '';
+
                     return $editButton . $deleteButton;
                 })
                 ->rawColumns(['action'])
@@ -44,12 +58,12 @@ class UnidadController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $this->validate($request);
+        $data = $this->validateData($request);
 
         Unidad::create($data);
 
         return response()->json([
-            'status' => true,
+            'success' => true,
             'message' => 'Registro creado satisfactoriamente'
         ]);
     }
@@ -80,7 +94,7 @@ class UnidadController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $data = $this->validate($request, $id);
+        $data = $this->validateData($request, $id);
         $registro = Unidad::where('codigo', $id)->firstOrFail();
         $registro->update($data);
 
@@ -110,7 +124,7 @@ class UnidadController extends Controller
         }
     }
 
-    protected function validate(Request $request, $id = null)
+    protected function validateData(Request $request, $id = null)
     {
         return $request->validate([
             'codigo' => [

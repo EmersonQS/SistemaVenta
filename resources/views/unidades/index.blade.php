@@ -10,9 +10,11 @@
       <div class="card mb-4">
         <div class="card-header d-flex align-items-center">
           <h3 class="card-title flex-grow-1">Unidades</h3>
+          @can('unidades_create')
           <button type="button" class="btn btn-primary" id="btnCreate">
             <i class="bi bi-plus-circle-fill"></i> Nuevo
           </button>
+          @endcan
         </div>
         <!-- /.card-header -->
         <div class="card-body">
@@ -40,7 +42,9 @@
   </div>
   <!--end::Row-->
 </div>
+@canany(['unidades_create', 'unidades_edit'])
 @include('unidades.action')
+@endcanany
 @endsection
 @push('scripts')
 <script>

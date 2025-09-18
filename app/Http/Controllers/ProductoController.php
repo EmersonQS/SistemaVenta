@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
+use App\Imports\ProductosImport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ProductoController extends Controller
 {
@@ -24,9 +26,10 @@ class ProductoController extends Controller
                     'codigo',
                     'nombre',
                     'precio_unitario',
+                    'stock',
                     'imagen'
                 ]
-            );
+            )->orderBy('id', 'desc');
 
             return DataTables::of($data)
                 ->addColumn('action', function ($row) {
@@ -68,7 +71,7 @@ class ProductoController extends Controller
         Producto::create($data);
 
         return response()->json([
-            'status' => true,
+            'success' => true,
             'message' => 'Registro creado satisfactoriamente'
         ]);
     }
@@ -159,7 +162,29 @@ class ProductoController extends Controller
             'nombre' => 'required|string|max:50',
             'descripcion' => 'nullable|string|max:255',
             'imagen' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'precio_unitario' => 'required|numeric|between:0,9999.99'
+            'precio_unitario' => 'required|numeric|between:0,9999.99',
+            'stock' => 'required|numeric',
         ]);
+    }
+    public function buscar(Request $request)
+    {
+        $q = $request->input('q');
+        return Producto::with('afectacionTipo:codigo,porcentaje')
+            ->where('nombre', 'like', "%{$q}%")
+            ->orWhere('codigo', 'like', "%{$q}%")
+            ->select('id', 'codigo', 'nombre', 'precio_unitario', 'afectacion_tipo_codigo')
+            ->limit(10)
+            ->get();
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'archivo' => 'required|mimes:xlsx,xls'
+        ]);
+
+        Excel::import(new ProductosImport, $request->file('archivo'));
+
+        return redirect()->back()->with('success', 'Productos importados correctamente');
     }
 }

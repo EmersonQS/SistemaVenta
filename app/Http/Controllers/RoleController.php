@@ -8,6 +8,7 @@ use Spatie\Permission\Models\Permission;
 use Yajra\DataTables\DataTables;
 use Illuminate\Validation\Rule;
 
+
 class RoleController extends Controller
 {
     /**
@@ -57,7 +58,7 @@ class RoleController extends Controller
         }
 
         return response()->json([
-            'status' => true,
+            'success' => true,
             'message' => 'Registro creado satisfactoriamente'
         ]);
     }
@@ -132,6 +133,11 @@ class RoleController extends Controller
             'permissions' => 'nullable|array',
             'permissions.*' => 'string|exists:permissions,name',
         ]);
+    }
+    public function roles()
+    {
+        $roles = Role::select('id', 'name')->get();
+        return response()->json($roles);
     }
 
     public function permisos()

@@ -25,6 +25,7 @@
                   <th>Afectacion Tipo</th>
                   <th>Codigo</th>
                   <th>Nombre</th>
+                  <th>Stock</th>
                   <th>Precio Unitario</th>
                   <th>Imagen</th>
                 </tr>
@@ -36,6 +37,22 @@
         </div>
         <!-- /.card-body -->
         <div class="card-footer clearfix">
+          @can('productos_create')
+          @if(session('success'))
+          <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill"></i> {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+          </div>
+          @endif
+          <form action="{{ route('productos.importar') }}" method="POST" enctype="multipart/form-data"
+            class="d-flex align-items-center gap-2">
+            @csrf
+            <input type="file" name="archivo" class="form-control form-control-sm" style="max-width: 250px;" required>
+            <button type="submit" class="btn btn-success btn-sm">
+              <i class="bi bi-upload"></i> Importar
+            </button>
+          </form>
+          @endcan
         </div>
       </div>
       <!-- /.card -->
@@ -97,6 +114,10 @@
             name: 'nombre'
           },
           {
+            data: 'stock',
+            name: 'stock'
+          },
+          {
             data: 'precio_unitario',
             name: 'precio_unitario'
           },
@@ -132,13 +153,14 @@
           },
           {
             targets: 6,
+            width: '15%'
+          },
+          {
+            targets: 7,
             width: '20%'
           }
         ],
         responsive: true,
-        order: [
-          [1, 'asc']
-        ]
       });
     }
     async showEditModal(id) {
@@ -157,7 +179,8 @@
         document.getElementById('codigo').value = response.codigo || '';
         document.getElementById('nombre').value = response.nombre || '';
         document.getElementById('descripcion').value = response.descripcion || '';
-        document.getElementById('precio_unitario').value = response.precio_unitario || '';
+        document.getElementById('precio_unitario').value = response.precio_unitario;
+        document.getElementById('stock').value = response.stock;
 
         if (response.imagen && response.imagen !== "") {
           document.getElementById('imagen_producto').src = "{{ asset('uploads/productos') }}/" + response.imagen;
@@ -184,7 +207,6 @@
       document.getElementById('afectacion_tipo_codigo').value = '10';
       document.getElementById('imagen_producto').style.display = 'none';
     }
-
   }
   document.addEventListener('DOMContentLoaded', () => {
     new ProductoManager();
